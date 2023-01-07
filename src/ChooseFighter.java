@@ -12,5 +12,6 @@ public class ChooseFighter {
 
     public ChooseFighter() {
         szefButton.addActionListener(e -> Main.zmienContent(new WelcomeSzef().panel1));
+
     }
 }

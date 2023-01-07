@@ -12,9 +12,9 @@ public class Main {
 
     public static void main(String[] args) {
         przejrzyjDaneKlient(1);
+        frame.setSize(500,500);
         frame.setContentPane(new ChooseFighter().panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
         frame.setVisible(true);
 
     }
@@ -22,13 +22,13 @@ public class Main {
     static void zmienContent(JPanel panel){
         frame.setContentPane(panel);
         frame.pack();
+        frame.setSize(500,500);
     }
 
 
     static void utworzPoloczenie(String query){
-        Connection conn = null;
+        Connection conn;
         try {
-            System.out.println(conn);
             conn = DriverManager.getConnection(polaczenieURL);
             System.out.println(conn);
 
