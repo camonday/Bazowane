@@ -8,17 +8,22 @@ public class Main {
 
     static String daneZBazy;
     static String polaczenieURL = "jdbc:mysql://localhost:3306/mydb2?user=root&password=admin";
+     static JFrame frame = new JFrame("First");
 
     public static void main(String[] args) {
-
-
         przejrzyjDaneKlient(1);
-
-        // utworz polaczenie
-
-
+        frame.setContentPane(new ChooseFighter().panel1);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
 
     }
+
+    static void zmienContent(JPanel panel){
+        frame.setContentPane(panel);
+        frame.pack();
+    }
+
 
     static void utworzPoloczenie(String query){
         Connection conn = null;
