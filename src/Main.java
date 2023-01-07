@@ -12,8 +12,7 @@ public class Main {
     public static void main(String[] args) {
 
 
-        int idKlienta =1;
-        String query = "CALL `mydb2`.`przejrzyjDaneKlient`(" + idKlienta + ");\n";
+        przejrzyjDaneKlient(1);
 
         // utworz polaczenie
 
@@ -61,5 +60,8 @@ public class Main {
 
     }
 
-
+    static void przejrzyjDaneKlient(int idKlienta){
+        String query = "CALL `mydb2`.`przejrzyjDaneKlient`(" + idKlienta + ");\n";
+        utworzPoloczenie(query);
+    }
 }
