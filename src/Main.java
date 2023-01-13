@@ -1,3 +1,6 @@
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import javax.swing.*;
 import java.sql.*;
 import java.sql.Connection;
@@ -25,6 +28,24 @@ public class Main {
         frame.setSize(500,500);
     }
 
+    static Connection otworzPoloczenie() throws SQLException, ClassNotFoundException {
+        Connection conn;
+
+        conn = DriverManager.getConnection(polaczenieURL);
+        System.out.println(conn);
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        return conn;
+    }
+
+    static void zamknijPoloczenie(@NotNull Connection conn) {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     static void utworzPoloczenie(String query){
         Connection conn;

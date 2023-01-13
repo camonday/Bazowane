@@ -1,14 +1,20 @@
+import org.jetbrains.annotations.NotNull;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class WelcomeSzef {
     JPanel panel1;
     private JTextField idKlientaTextField;
     private JButton OKButton;
-    private JPanel blad;
+    private JPanel komunikat;
     private JPanel przyciski;
-    private JLabel label_bledu;
+    private JLabel tresc_komunikatu;
     private JButton sprawdzStanKontaButton;
     private JButton dodajObowiazekZaplatyButton;
     private JButton dodajWplateButton;
@@ -18,6 +24,7 @@ public class WelcomeSzef {
     private JPanel Ile;
     private JTextField textField1;
     private JButton OKButton1;
+    private JLabel naglowek_komunikatu;
     private int idKlient;
     private int kwota;
     String query;
@@ -39,8 +46,8 @@ public class WelcomeSzef {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Visibility();
-                blad.setVisible(true);
-                label_bledu.setText("Ten uzytkownik nie istnieje");
+                komunikat.setVisible(true);
+                tresc_komunikatu.setText("Ten uzytkownik nie istnieje");
             }
         });
         takButton.addActionListener(new ActionListener() {
@@ -53,6 +60,7 @@ public class WelcomeSzef {
         sprawdzStanKontaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 query = "CALL `mydb2`.`sprawdzStanKontaKlientSzef`(" + idKlient +");\n";
                 Main.utworzPoloczenie(query);
             }
@@ -65,9 +73,10 @@ public class WelcomeSzef {
                     @Override
                     public synchronized void actionPerformed(ActionEvent e) {
                         kwota = Integer.parseInt(textField1.getText());
-                        System.out.println(kwota);
-                        query = "CALL `mydb2`.`dodajWplateSzef`(" + idKlient + "," + kwota +");\n";
-                        Main.utworzPoloczenie(query);
+                        System.out.println(kwota);//"CALL `mydb2`.`dodajWplateSzef`(?,?);\n"
+                        PoloczenieKlientKwota("CALL `mydb2`.`zapakujDanieKucharz`(?, ?);");
+                        naglowek_komunikatu.setText("masa      czy_Zapakowane      ID_Jadlospis      ID_Danie");
+                        komunikat.setVisible(true);
                     }
                 });
 
@@ -83,6 +92,7 @@ public class WelcomeSzef {
                     public synchronized void actionPerformed(ActionEvent e) {
                         kwota = Integer.parseInt(textField1.getText());
                         System.out.println(kwota);
+
                         query = "CALL `mydb2`.`dodajWplateSzef`(" + idKlient + "," + kwota +");\n";
                         Main.utworzPoloczenie(query);
                     }
@@ -94,8 +104,54 @@ public class WelcomeSzef {
 
     void Visibility(){
         przyciski.setVisible(false);
-        blad.setVisible(false);
+        komunikat.setVisible(false);
         TestP.setVisible(false);
         Ile.setVisible(false);
+    }
+
+    void PoloczenieKlientKwota(String query_){
+        try {
+            Connection conn = Main.otworzPoloczenie();
+
+            try (PreparedStatement Query = conn.prepareStatement(query_)){
+                conn.setAutoCommit(false);
+                Query.setInt(1, idKlient);
+                Query.setInt(2, kwota);
+                ResultSet rs = Query.executeQuery();
+                conn.commit();
+                while (rs.next()) {
+                    OdpowiedzDoOkienka(rs);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+                try {
+                    System.err.print("Transaction is being rolled back");
+                    conn.rollback();
+                } catch (SQLException excep) {
+                    excep.printStackTrace();
+                }
+            }
+
+            Main.zamknijPoloczenie(conn);
+        } catch (SQLException e) {
+            System.out.println("Nie ok");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Problem ze sterownikiem");
+        }
+
+
+    }
+
+    void OdpowiedzDoOkienka(@NotNull ResultSet rs){
+        StringBuilder tekstB= new StringBuilder();
+        for (int i=1; ;i++){
+            try {
+                tekstB.append("     ");
+                tekstB.append(rs.getString(i));
+            }catch(SQLException e){
+                tresc_komunikatu.setText(tekstB.toString());
+                break;
+            }
+        }
     }
 }
