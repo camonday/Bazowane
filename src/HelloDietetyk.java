@@ -9,7 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class HelloDietetyk {
-    private int moje_id, klient_id;
+    private final int moje_id;
+    private int klient_id;
     private String bufforek;
     private String quest;
     JPanel panel1;

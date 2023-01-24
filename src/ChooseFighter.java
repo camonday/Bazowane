@@ -13,5 +13,6 @@ public class ChooseFighter {
         dietetykButton.addActionListener(e -> Main.zmienContent(new LogDietetyk().panel1));
         kucharzButton.addActionListener(e -> Main.zmienContent(new helloKucharz().panel1));
         dostawcaButton.addActionListener(e -> Main.zmienContent(new helloDostawca().panel1));
+        klientButton.addActionListener(e -> Main.zmienContent(new LogKlient().panel1));
     }
 }
