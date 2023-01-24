@@ -18,9 +18,6 @@ public class WelcomeSzef {
     private JButton sprawdzStanKontaButton;
     private JButton dodajObowiazekZaplatyButton;
     private JButton dodajWplateButton;
-    private JButton takButton;
-    private JButton nieButton;
-    private JPanel TestP;
     private JPanel Ile;
     private JTextField textField1;
     private JButton OKButton1;
@@ -28,6 +25,7 @@ public class WelcomeSzef {
     private int idKlient;
     private int kwota;
     String query;
+    boolean zmiana;
 
     public WelcomeSzef() {
         Visibility();
@@ -37,49 +35,31 @@ public class WelcomeSzef {
             public void actionPerformed(ActionEvent e) {
                 Visibility();
                idKlient = Integer.parseInt(idKlientaTextField.getText());
-               System.out.println(idKlient);
-                query = "CALL `mydb2`.`przejrzyjDaneKlient`(" + idKlient + ");\n";
-                TestP.setVisible(true);
-            }
-        });
-        nieButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Visibility();
+                query = "CALL `mydb2`.`przejrzyjDaneKlient`(?);\n";
+
+                zmiana = false;
+                Poloczenie1Variable(query, idKlient);
+                if(!zmiana){
+                   tresc_komunikatu.setText("Ten uzytkownik nie istnieje");
+                }else {
+                    przyciski.setVisible(true);
+                }
                 komunikat.setVisible(true);
-                tresc_komunikatu.setText("Ten uzytkownik nie istnieje");
-            }
-        });
-        takButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Visibility();
-                przyciski.setVisible(true);
             }
         });
         sprawdzStanKontaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                query = "CALL `mydb2`.`sprawdzStanKontaKlientSzef`(" + idKlient +");\n";
-                Main.utworzPoloczenie(query);
+                Ile.setVisible(false);
+                query = "CALL `mydb2`.`sprawdzStanKontaKlientSzef`(?);\n";
+                Poloczenie1Variable(query, idKlient);
             }
         });
         dodajWplateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Ile.setVisible(true);
-                OKButton1.addActionListener(new ActionListener() {
-                    @Override
-                    public synchronized void actionPerformed(ActionEvent e) {
-                        kwota = Integer.parseInt(textField1.getText());
-                        System.out.println(kwota);//"CALL `mydb2`.`dodajWplateSzef`(?,?);\n"
-                        PoloczenieKlientKwota("CALL `mydb2`.`zapakujDanieKucharz`(?, ?);");
-                        naglowek_komunikatu.setText("masa      czy_Zapakowane      ID_Jadlospis      ID_Danie");
-                        komunikat.setVisible(true);
-                    }
-                });
-
+                query = "CALL `mydb2`.`dodajWplateSzef`(?,?);\n";
             }
         });
 
@@ -87,17 +67,18 @@ public class WelcomeSzef {
             @Override
             public synchronized void actionPerformed(ActionEvent e) {
                 Ile.setVisible(true);
-                OKButton1.addActionListener(new ActionListener() {
-                    @Override
-                    public synchronized void actionPerformed(ActionEvent e) {
-                        kwota = Integer.parseInt(textField1.getText());
-                        System.out.println(kwota);
+                query = "CALL `mydb2`.`dodajObowiazekZaplatySzef`(?,?);\n";
+            }
+        });
 
-                        query = "CALL `mydb2`.`dodajWplateSzef`(" + idKlient + "," + kwota +");\n";
-                        Main.utworzPoloczenie(query);
-                    }
-                });
-
+        OKButton1.addActionListener(new ActionListener() {
+            @Override
+            public synchronized void actionPerformed(ActionEvent e) {
+                kwota = Integer.parseInt(textField1.getText());
+                System.out.println(kwota);//
+                Poloczenie2Variable(query,idKlient,kwota);
+                naglowek_komunikatu.setText("obecny stan konta:");
+                komunikat.setVisible(true);
             }
         });
     }
@@ -105,18 +86,52 @@ public class WelcomeSzef {
     void Visibility(){
         przyciski.setVisible(false);
         komunikat.setVisible(false);
-        TestP.setVisible(false);
+        naglowek_komunikatu.setVisible(false);
         Ile.setVisible(false);
     }
 
-    void PoloczenieKlientKwota(String query_){
+    void Poloczenie2Variable(String query_, int var1, int var2){
         try {
             Connection conn = Main.otworzPoloczenie();
 
             try (PreparedStatement Query = conn.prepareStatement(query_)){
                 conn.setAutoCommit(false);
-                Query.setInt(1, idKlient);
-                Query.setInt(2, kwota);
+                Query.setInt(1, var1);
+                Query.setInt(2, var2);
+
+                ResultSet rs = Query.executeQuery();
+                conn.commit();
+                while (rs.next()) {
+                    OdpowiedzDoOkienka(rs);
+                }
+            }catch (SQLException e) {
+                e.printStackTrace();
+                try {
+                    System.err.print("Transaction is being rolled back");
+                    conn.rollback();
+                } catch (SQLException excep) {
+                    excep.printStackTrace();
+                }
+            }
+
+            Main.zamknijPoloczenie(conn);
+        } catch (SQLException e) {
+            System.out.println("Nie ok");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Problem ze sterownikiem");
+        }
+
+
+    }
+
+    void Poloczenie1Variable(String query_, int var1){
+        try {
+            Connection conn = Main.otworzPoloczenie();
+
+            try (PreparedStatement Query = conn.prepareStatement(query_)){
+                conn.setAutoCommit(false);
+                Query.setInt(1, var1);
+
                 ResultSet rs = Query.executeQuery();
                 conn.commit();
                 while (rs.next()) {
@@ -149,7 +164,8 @@ public class WelcomeSzef {
                 tekstB.append("     ");
                 tekstB.append(rs.getString(i));
             }catch(SQLException e){
-                tresc_komunikatu.setText(tekstB.toString());
+                    tresc_komunikatu.setText(tekstB.toString());
+                    zmiana = true;
                 break;
             }
         }

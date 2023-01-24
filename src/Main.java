@@ -1,20 +1,17 @@
+
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.sql.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class Main {
 
     static String daneZBazy;
     static String polaczenieURL = "jdbc:mysql://localhost:3306/mydb2?user=root&password=admin";
-     static JFrame frame = new JFrame("First");
+    static JFrame frame = new JFrame("First");
 
     public static void main(String[] args) {
-        przejrzyjDaneKlient(1);
+        //przejrzyjDaneKlient(1);
         frame.setSize(500,500);
         frame.setContentPane(new ChooseFighter().panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,7 +36,7 @@ public class Main {
         return conn;
     }
 
-    static void zamknijPoloczenie(@NotNull Connection conn) {
+    static void zamknijPoloczenie( @NotNull Connection conn) {
         try {
             conn.close();
         } catch (SQLException e) {

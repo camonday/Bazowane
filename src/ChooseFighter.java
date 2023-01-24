@@ -1,6 +1,4 @@
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ChooseFighter {
     private JButton szefButton;
@@ -12,6 +10,7 @@ public class ChooseFighter {
 
     public ChooseFighter() {
         szefButton.addActionListener(e -> Main.zmienContent(new WelcomeSzef().panel1));
+        dietetykButton.addActionListener(e -> Main.zmienContent(new LogDietetyk().panel1));
 
     }
 }
